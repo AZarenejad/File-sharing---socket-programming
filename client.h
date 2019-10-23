@@ -52,13 +52,7 @@ void receive_broadcast(int broadcast_fd, const char* my_port);
 void initial_client_socket_for_peer_connection(const char* client_port);
 int send_file(int destination_fd, char* file_name);
 int receive_file(int source_fd, char* file_name);
-static char *itoa_simple_helper(char *dest, int i) {
-  if (i <= -10) {
-    dest = itoa_simple_helper(dest, i/10);
-  }
-  *dest++ = '0' - i%10;
-  return dest;
-}
+static char *itoa_simple_helper(char *dest, int i);
 
 char *itoa_simple(char *dest, int i);
 
