@@ -23,37 +23,51 @@ int heartbeat_fd;
 struct sockaddr_in heartbeat_address;
 int heartbeat_address_length;
 int broadcast_address_length;
+int possible_to_send_broadcast = 0;
+int client_connection;
+struct sockaddr_in client_address;
+int client_address_length;
 
+struct sockaddr_in socket_address, server_address;
+
+int server_address_length;
+
+int server_connection;
+int address_length ;
+fd_set heartbeat_fd_set;
 
 
 char path[100];
+char heartbeat_message[128];
+
+
 int upload_file(int server_fd, char* command);
 int download_file(int server_fd, char* command);
 void signal_handler(int sig);
-void initial_broadcast(int client_broadcast_port);
-void initial_heartbeat(int heartbeat_port);
+void initial_broadcast_socket(const char* broadcast_port);
+void initial_heartbeat_socket(const char* heartbeat_port);
 void send_broadcast(int udp_port, char* message);
-int send_file(int destination_fd, char* file_name);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-int download_file(int server_fd, char* file_name);
-int upload_file(int server_fd, char* file_name);
-void send_broadcast(int udp_port, char* message);
+void connect_to_server();
 void receive_broadcast(int broadcast_fd, const char* my_port);
-void signal_handler(int sig);
-
+void initial_client_socket_for_peer_connection(const char* client_port);
 int send_file(int destination_fd, char* file_name);
 int receive_file(int source_fd, char* file_name);
+static char *itoa_simple_helper(char *dest, int i) {
+  if (i <= -10) {
+    dest = itoa_simple_helper(dest, i/10);
+  }
+  *dest++ = '0' - i%10;
+  return dest;
+}
+
+char *itoa_simple(char *dest, int i);
+
+char *itoa_simple(char *dest, int i);
+
+
+
+
+
+
+
+

@@ -9,4 +9,3 @@ client : client.h
 clean:
 	rm server 
 	rm client
-

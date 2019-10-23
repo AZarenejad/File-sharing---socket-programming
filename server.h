@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 #define LISTENING_PORT "9090"
 #define MAX_PENDING 10

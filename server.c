@@ -35,7 +35,7 @@ int initial_tcp_server(){
 		perror("listen\n");
 		return 1;
 	}
-    char* msg="server now listenning on port 8080\n";
+    char* msg="server now listenning on port 9090\n";
     write(1,msg,strlen(msg));
     for (int i=0;i<MAX_CLIENT;i++){
         client_sockets[i]=0;
@@ -146,7 +146,7 @@ int receive_file(int source_fd, char* file_name){
 
 int main(int argc, char const *argv[]){
     char* direction="Server";
-    mkdir(direction);
+    mkdir(direction,0700);
 	if (argc != 2){
 		char* error_message = "Invalid Input. heartbeat port only needed!\n";
 		write(1, error_message, strlen(error_message));
@@ -244,6 +244,176 @@ int main(int argc, char const *argv[]){
 		}
 	}
 }
+
+
+
+
+
+
+// void initialize_heartbeat_socket(char* heartbeat_port){
+//     if( (heartbeat_socket_fd = socket(PF_INET , SOCK_DGRAM, IPPROTO_UDP)) < 0 ){
+//         char* error = "fail to open socket\n";
+//         write(1, error, strlen(error));
+//         return ;
+//     }
+//     hearbeat_addr.sin_family = PF_INET;
+//     hearbeat_addr.sin_port = htons(atoi(heartbeat_port));
+//     hearbeat_addr.sin_addr.s_addr = INADDR_ANY;
+
+//     int broadcast = 1;
+// 	setsockopt(heartbeat_socket_fd, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof(broadcast));
+//     // if( bind(heartbeat_socket_fd, (struct sockaddr *) &hearbeat_addr , sizeof(hearbeat_addr)) < 0) {
+//     //     char* error = "fail to bind\n";
+//     //     write(1, error, strlen(error));
+//     //     return ;
+//     // }
+
+// }
+
+// void initialize_server_socket(){
+//     for(int i = 0 ; i < MAX_CLIENTS ; i++){
+//         client_sockets[i] = 0;
+//     }
+
+//     if( (server_socket_fd = socket( AF_INET , SOCK_STREAM, 0)) == 0 ){
+//         char* error_make_socket = "fail to open socket\n";
+//         write(1, error_make_socket, strlen(error_make_socket));
+//         return ;
+//     }
+
+//     server_addr.sin_family = PF_INET;
+//     server_addr.sin_port = htons(LISTEN_PORT);
+//     server_addr.sin_addr.s_addr = inet_addr(LOCAL_IP_ADDRESS);
+
+//    if (bind(server_socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr))<0){  
+//        char* error ="bind error\n"; 
+//         write(1,error,strlen(error));   
+//         exit(EXIT_FAILURE);   
+//     }   
+//     write(1,"listener on port LISTEN_PORT: 9090\n",36);
+//     if (listen(server_socket_fd, MAX_PENDING) < 0)   {
+//         char* error = "listen error\n";
+//         write(1, error, strlen(error));   
+//         exit(EXIT_FAILURE);   
+//     }
+//     write(1,"Waiting for connection ...\n",28);
+// }
+
+// void sending_heartbeat(){   
+//     const char* msg = HEARTBEAT_MSG;
+//     if( sendto(heartbeat_socket_fd, msg , strlen(msg), 0, (struct sockaddr*)&hearbeat_addr, sizeof(hearbeat_addr)) == -1){
+//         char* error = "sendto error\n";
+//         write(1, error, strlen(error));
+//         exit(EXIT_FAILURE);
+//     }
+//     write(1,"Server is now heartbeating.\n", 29);
+//     signal(SIGALRM, sending_heartbeat);
+//     alarm(1);
+// }
+
+// void handle_incoming_connections(){
+//     int newSocket;
+//     int addrlen = sizeof(server_addr);
+//     if (FD_ISSET(server_socket_fd, &readfds)){   
+//         if ((newSocket = accept(server_socket_fd,(struct sockaddr *)& server_addr, (socklen_t*)&addrlen))<0) {   
+//             write(1, "accept\n", 8);   
+//             exit(EXIT_FAILURE);   
+//         }   
+//         char* addr = inet_ntoa(server_addr.sin_addr);
+//         char port[256];
+//         itoa_simple(port, ntohs(server_addr.sin_port));
+//         write(1, "New Connection, address: ", 26);
+//         write(1, addr, strlen(addr));
+//         write(1, " port: ", 8);   
+//         write(1, port, strlen(port));
+//         write(1, "\n", 1);   
+                
+//         char* message = "You connected to Server...\n";
+ 
+//         if( send(newSocket, message, strlen(message), 0) != strlen(message) ) {   
+//             write(1, "inform client send failed", 26);   
+//         }       
+//         write(1, "Connected message sent to client. \n", 36);
+
+//         for (int i = 0; i < MAX_CLIENTS; i++){    
+//             if( client_sockets[i] == 0 ){   
+//                 client_sockets[i] = newSocket;   
+//                 write(1, "Adding to list of sockets as ", 30);
+//                 char msg[250]; 
+//                 itoa_simple(msg, i);
+//                 write(1, msg, strlen(msg));
+//                 write(1, "\n" , 1);   
+//                 break;   
+//             }   
+//         } 
+//     } 
+//     else {
+//         int addrlen = sizeof(server_addr);
+//         for (int i = 0; i < MAX_CLIENTS; i++){
+//             int curent_client = client_sockets[i];
+//             if ( FD_ISSET(curent_client, &readfds)){
+//                 int read_size = 0;
+//                 if ((read_size = read(curent_client, buffer, 1024)) > 0){
+//                     buffer[read_size] = '\0';
+
+//                     if (memmem(buffer, read_size, "download", 8) == buffer){
+//                         char* msg = "\nserver is sending file to client...\n";
+//                         write(1,msg,strlen(msg));
+//                         int num_file = -1;
+//                         for (int j = 0; j < files_num; j++){
+//                             if (!strcmp(files[j], buffer + 9)){
+//                                 num_file = j;
+// 							    break;
+// 							}
+//                         }
+//                         if (num_file == -1 ){
+//                             send(curent_client,"0",1,0);
+//                         }
+//                         else{
+//                             send(curent_client,"1",1,0);
+//                             send_file(curent_client , files[num_file]);
+//                         }
+//                     }
+
+
+//                    	else if (memmem(buffer, 1024, "upload", 6) == buffer){
+//                         char* msg = "server is recieving file from client...\n";
+//                         write(1,msg,strlen(msg));
+//                         int duplicate = 0;
+//                         for (int j = 0; j < files_num; j++){
+//                             if (!strcmp(files[j], buffer + 7)){
+//                                 send(curent_client, "0", 1, 0);
+// 								duplicate = 1;
+// 								break;
+// 							}
+// 						}
+// 						if (duplicate)
+// 							break;
+                        
+// 						files[files_num] = (char*)malloc((read_size - 7 + 1) * sizeof(char));
+// 						strcpy(files[files_num], buffer + 7);
+// 						send(curent_client, "1", 1, 0);
+// 						if (FD_ISSET(curent_client, &readfds))
+// 							receive_file(curent_client, files[files_num++]);
+// 						else{
+// 							char* error_message = "Upload receive error!\n";
+// 							write(2, error_message, strlen(error_message));
+// 							break;
+// 						}
+// 					}
+// 					else
+// 						send(curent_client, "-1", 1, 0);
+// 				}
+// 				else{
+// 					close(client_sockets[i]);
+// 					client_sockets[i] = 0;
+// 					char* message = "Socket disconnected.\n";
+// 					write(1, message, strlen(message));
+// 				}
+//             }
+//         }
+//     }
+// }
 
 
 
